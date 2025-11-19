@@ -1,0 +1,41 @@
+services:
+  # 🍃 Banco de Dados
+  mongodb:
+    image: mongo:latest
+    container_name: gdash_mongo
+    restart: always
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USER}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASS}
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - gdash_net
+
+  # 🐰 Fila de Mensagens
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: gdash_rabbitmq
+    restart: always
+    ports:
+      - "5672:5672"   # Porta padrão do protocolo AMQP
+      - "15672:15672" # Porta do painel de gerenciamento (Interface Web)
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASS}
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - gdash_net
+
+# Definição dos volumes (persistência de dados)
+volumes:
+  mongo_data:
+  rabbitmq_data:
+
+# Definição da rede (para os containers se enxergarem)
+networks:
+  gdash_net:
+    driver: bridge

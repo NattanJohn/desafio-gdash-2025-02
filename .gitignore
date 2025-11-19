@@ -1,0 +1,67 @@
+# --- Geral e Sistema Operacional ---
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.log
+
+# --- Variáveis de Ambiente (CRÍTICO) ---
+.env
+.env.local
+.env.*
+!.env.example
+
+# --- Docker ---
+docker-compose.override.yml
+
+# --- Node.js (Backend NestJS & Frontend React) ---
+node_modules/
+dist/
+build/
+coverage/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# --- Python (Collector) ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+# Virtual Environments
+venv/
+.venv/
+ENV/
+
+# --- Go (Worker) ---
+# Binários compilados
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+# Testes
+*.test
+*.out
+# Pacotes
+vendor/
+# Binário principal
+main
