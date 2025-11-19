@@ -4,6 +4,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { WeatherLogsModule } from './weather-logs/weather-logs.module';
+import { InsightsModule } from './insights/insights.module';
 
 @Module({
   imports: [
@@ -21,14 +22,10 @@ import { WeatherLogsModule } from './weather-logs/weather-logs.module';
       inject: [ConfigService],
     }),
 
-    // Módulos que criaremos:
-    // WeatherLogsModule,
     UsersModule,
-
     AuthModule,
-
     WeatherLogsModule,
-    // InsightsModule,
+    InsightsModule,
   ],
   controllers: [],
   providers: [],
