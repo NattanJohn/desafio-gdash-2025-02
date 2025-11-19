@@ -10,6 +10,8 @@ import {
   HttpCode,
   HttpStatus,
   Inject,
+  Header,
+  StreamableFile,
 } from '@nestjs/common';
 import { ParseObjectIdPipe } from '../common/pipes/parse-object-id.pipe';
 import { AuthGuard } from '@nestjs/passport';
@@ -45,6 +47,28 @@ export class WeatherLogsController {
   @Get()
   findAll() {
     return this.weatherLogsService.findAll();
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Get('export-csv')
+  @Header('Content-Type', 'text/csv')
+  @Header('Content-Disposition', 'attachment; filename="weather-logs.csv"')
+  exportCsv(): Promise<StreamableFile> {
+    const csvStream = this.weatherLogsService.exportToCsvStream();
+    return Promise.resolve(new StreamableFile(csvStream));
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Get('export-xlsx')
+  @Header(
+    'Content-Type',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  )
+  @Header('Content-Disposition', 'attachment; filename="weather-logs.xlsx"')
+  // 🚨 Retorno direto (Promise<any>) e remoção do @Response()
+  async exportXlsx(): Promise<any> {
+    const logs = await this.weatherLogsService.exportToXlsx();
+    return logs;
   }
 
   @UseGuards(AuthGuard('jwt'))

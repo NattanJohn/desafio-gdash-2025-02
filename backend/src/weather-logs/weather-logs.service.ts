@@ -1,9 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { Transform } from 'stream'; // Importação para usar Streams
 import { WeatherLog, WeatherLogDocument } from './schemas/weather-logs.schema';
 import { CreateWeatherLogDto } from './dto/create-weather-log.dto';
 import { UpdateWeatherLogDto } from './dto/update-weather-log.dto';
+import { Parser } from 'json2csv';
 
 @Injectable()
 export class WeatherLogsService {
@@ -57,5 +59,65 @@ export class WeatherLogsService {
       );
     }
     return { message: 'Registro excluído com sucesso.' };
+  }
+
+  /**
+   * Exporta todos os logs para CSV utilizando Streams.
+   * @returns Transform Um fluxo de dados (Stream) contendo o CSV.
+   */
+
+  exportToCsvStream(): Transform {
+    const logsCursor = this.weatherLogModel.find().lean().cursor();
+
+    const fields = [
+      { label: 'ID', value: '_id' },
+      'city',
+      'country',
+      'temperature',
+      'humidity',
+      { label: 'Data/Hora', value: 'timestamp' },
+    ];
+
+    let isFirstChunk = true;
+
+    const csvStream = new Transform({
+      writableObjectMode: true,
+      transform(
+        chunk: Record<string, any>,
+        encoding: BufferEncoding,
+        callback: (error?: Error | null) => void,
+      ) {
+        try {
+          const json2csv = new Parser({ fields, header: isFirstChunk });
+          const csvLine = json2csv.parse([chunk]);
+
+          this.push(
+            (isFirstChunk
+              ? csvLine
+              : csvLine.substring(csvLine.indexOf('\n') + 1)) + '\n',
+          );
+
+          isFirstChunk = false;
+          callback();
+        } catch (error) {
+          callback(error as Error);
+        }
+      },
+    });
+
+    return logsCursor.pipe(csvStream);
+  }
+
+  /**
+   * Exporta todos os logs para XLSX (Placeholder que retorna JSON).
+   * @returns Promise<any[]> Retorna o array de logs.
+   */
+  async exportToXlsx(): Promise<any[]> {
+    const logs = await this.weatherLogModel.find().lean().exec();
+
+    if (!logs || logs.length === 0) {
+      throw new NotFoundException('Não há registros de clima para exportar.');
+    }
+    return logs;
   }
 }
