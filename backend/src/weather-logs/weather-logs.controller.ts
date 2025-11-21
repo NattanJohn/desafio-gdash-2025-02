@@ -9,7 +9,6 @@ import {
   UseGuards,
   HttpCode,
   HttpStatus,
-  Inject,
   Header,
   StreamableFile,
 } from '@nestjs/common';
@@ -18,29 +17,22 @@ import { AuthGuard } from '@nestjs/passport';
 import { WeatherLogsService } from './weather-logs.service';
 import { CreateWeatherLogDto } from './dto/create-weather-log.dto';
 import { UpdateWeatherLogDto } from './dto/update-weather-log.dto';
-import { ClientProxy, MessagePattern } from '@nestjs/microservices';
 
 @Controller('weather-logs')
 export class WeatherLogsController {
-  constructor(
-    private readonly weatherLogsService: WeatherLogsService,
-    @Inject('WEATHER_SERVICE') private readonly client: ClientProxy,
-  ) {}
+  constructor(private readonly weatherLogsService: WeatherLogsService) {}
 
   @UseGuards(AuthGuard('jwt'))
   @Post()
-  create(@Body() createWeatherLogDto: CreateWeatherLogDto) {
-    this.client.emit('create_log', createWeatherLogDto);
-    return {
-      message: 'Log de clima aceito para processamento assíncrono.',
-      data: createWeatherLogDto,
-    };
-  }
+  @HttpCode(HttpStatus.CREATED)
+  async create(@Body() createWeatherLogDto: CreateWeatherLogDto) {
+    const createdLog =
+      await this.weatherLogsService.create(createWeatherLogDto);
 
-  @MessagePattern('create_log')
-  handleLogCreation(data: CreateWeatherLogDto) {
-    console.log('Mensagem RabbitMQ recebida para salvar log:', data);
-    return this.weatherLogsService.create(data);
+    return {
+      message: 'Log de clima salvo com sucesso via Worker Go (RESTful).',
+      data: createdLog,
+    };
   }
 
   @UseGuards(AuthGuard('jwt'))
@@ -65,7 +57,6 @@ export class WeatherLogsController {
     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
   )
   @Header('Content-Disposition', 'attachment; filename="weather-logs.xlsx"')
-  // 🚨 Retorno direto (Promise<any>) e remoção do @Response()
   async exportXlsx(): Promise<any> {
     const logs = await this.weatherLogsService.exportToXlsx();
     return logs;
