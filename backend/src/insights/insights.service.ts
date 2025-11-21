@@ -1,63 +1,91 @@
-import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import {
-  WeatherLogDocument,
-  WeatherLog,
-} from '../weather-logs/schemas/weather-logs.schema';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { WeatherLogsService } from '../weather-logs/weather-logs.service';
 import { InsightResult } from './interfaces/insight-result.interface';
-import { AggregationResultItem } from './interfaces/aggregation-result.interface';
+
+interface WeatherInsight extends InsightResult {
+  latestTemperature: number;
+  latestHumidity: number;
+  trend: string;
+  comfortScore: number;
+  classification: string;
+}
 
 @Injectable()
 export class InsightsService {
-  constructor(
-    @InjectModel(WeatherLog.name)
-    private weatherLogModel: Model<WeatherLogDocument>,
-  ) {}
+  private readonly LOG_COUNT = 10;
+  private readonly TREND_COUNT = 5;
 
-  async getBasicWeatherInsights(days: number = 7): Promise<InsightResult> {
-    const cutoffDate = new Date();
-    cutoffDate.setDate(cutoffDate.getDate() - days);
+  constructor(private readonly weatherLogsService: WeatherLogsService) {}
 
-    const aggregationResult: AggregationResultItem[] =
-      (await this.weatherLogModel
-        .aggregate([
-          { $match: { timestamp: { $gte: cutoffDate } } },
-          {
-            $group: {
-              _id: null,
-              averageTemperature: { $avg: '$temperature' },
-              averageHumidity: { $avg: '$humidity' },
-              count: { $sum: 1 },
-            },
-          },
-          { $project: { _id: 0 } },
-        ])
-        .exec()) as AggregationResultItem[];
+  /**
+   * Gera um conjunto de insights climáticos baseados nos logs recentes.
+   */
+  async generateInsights(): Promise<WeatherInsight> {
+    const logs = await this.weatherLogsService.findRecentLogs(this.LOG_COUNT);
 
-    const defaultStats: AggregationResultItem = {
-      _id: null,
-      averageTemperature: 0,
-      averageHumidity: 0,
-      count: 0,
-    };
+    if (logs.length === 0) {
+      throw new NotFoundException(
+        'Não há logs de clima suficientes para gerar insights.',
+      );
+    }
 
-    const stats: AggregationResultItem = aggregationResult[0] || defaultStats;
+    const latest = logs[0];
+    const totalTemp = logs.reduce((sum, log) => sum + log.temperature, 0);
+    const totalHumid = logs.reduce((sum, log) => sum + log.humidity, 0);
+    const averageTemperature = parseFloat((totalTemp / logs.length).toFixed(1));
+    const averageHumidity = parseFloat((totalHumid / logs.length).toFixed(0));
 
-    const insight: InsightResult = {
-      period: `${days} dias`,
-      totalRecords: stats.count,
+    let trend = 'Estável';
+    if (logs.length >= this.LOG_COUNT) {
+      const recentTemps = logs.slice(0, this.TREND_COUNT);
+      const olderTemps = logs.slice(this.TREND_COUNT, this.LOG_COUNT);
+
+      const avgRecent =
+        recentTemps.reduce((sum, log) => sum + log.temperature, 0) /
+        recentTemps.length;
+      const avgOlder =
+        olderTemps.reduce((sum, log) => sum + log.temperature, 0) /
+        olderTemps.length;
+
+      const diff = avgRecent - avgOlder;
+
+      if (diff > 0.5) {
+        trend = 'Temperatura em Leve Aumento (+' + diff.toFixed(1) + '°C)';
+      } else if (diff < -0.5) {
+        trend =
+          'Temperatura em Leve Queda (-' + Math.abs(diff).toFixed(1) + '°C)';
+      }
+    }
+
+    const tempPenalty = Math.abs(latest.temperature - 24) * 4;
+    const humidPenalty = Math.abs(latest.humidity - 50) * 0.5;
+    let comfortScore = 100 - tempPenalty - humidPenalty;
+    comfortScore = Math.max(0, parseFloat(comfortScore.toFixed(0)));
+
+    let classification = 'Agradável';
+    if (latest.temperature > 30) classification = 'Quente e Seco';
+    else if (latest.temperature < 18) classification = 'Frio';
+    else if (latest.humidity > 75) classification = 'Úmido (Possível Chuva)';
+
+    let summary = `A temperatura atual em ${latest.city} é de ${latest.temperature}°C com umidade de ${latest.humidity}%. `;
+    summary += `A média de temperatura registrada foi de ${averageTemperature}°C. `;
+    summary += `O clima é classificado como "${classification}", e a tendência de temperatura é ${trend.toLowerCase()}. O índice de conforto atual é de ${comfortScore}/100.`;
+
+    return {
+      period: `Últimos ${logs.length} logs`,
+      totalRecords: logs.length,
       metrics: {
-        avgTemperature: parseFloat(stats.averageTemperature.toFixed(2)),
-        avgHumidity: parseFloat(stats.averageHumidity.toFixed(2)),
+        avgTemperature: averageTemperature,
+        avgHumidity: averageHumidity,
       },
-      analysis:
-        stats.averageTemperature > 25
-          ? 'A temperatura média indica um período de calor intenso, monitorar a umidade para risco de incêndio.'
-          : 'As condições climáticas estão moderadas e favoráveis.',
-      suggestedAction: 'N/A',
-    };
-
-    return insight;
+      analysis: summary,
+      suggestedAction:
+        'Monitorar tendências de temperatura e umidade para antecipar eventos climáticos.',
+      latestTemperature: latest.temperature,
+      latestHumidity: latest.humidity,
+      trend: trend,
+      comfortScore: comfortScore,
+      classification: classification,
+    } as WeatherInsight;
   }
 }

@@ -13,7 +13,6 @@ import { AuthModule } from '../auth/auth.module';
       { name: WeatherLog.name, schema: WeatherLogSchema },
     ]),
     AuthModule,
-    // 🚨 NOVO: Configuração do Cliente RabbitMQ
     ClientsModule.registerAsync([
       {
         name: 'WEATHER_SERVICE',

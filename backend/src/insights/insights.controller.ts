@@ -1,7 +1,21 @@
-import { Controller, Get, UseGuards, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  UseGuards,
+  HttpStatus,
+  HttpCode,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { InsightsService } from './insights.service';
 import { InsightResult } from './interfaces/insight-result.interface';
+
+interface FullInsightResult extends InsightResult {
+  latestTemperature: number;
+  latestHumidity: number;
+  trend: string;
+  comfortScore: number;
+  classification: string;
+}
 
 @Controller('insights')
 export class InsightsController {
@@ -9,14 +23,12 @@ export class InsightsController {
 
   /**
    * GET /insights
-   * Retorna os insights de clima calculados (simulação de camada de IA).
-   * @param days Número de dias a considerar no cálculo (default: 7).
+   * Retorna os insights de clima calculados (análise de média, tendência, conforto e resumo).
    */
   @UseGuards(AuthGuard('jwt'))
   @Get()
-  async getInsights(@Query('days') days: string): Promise<InsightResult> {
-    const period = days ? parseInt(days, 10) : 7;
-
-    return this.insightsService.getBasicWeatherInsights(period);
+  @HttpCode(HttpStatus.OK)
+  async getInsights(): Promise<FullInsightResult> {
+    return this.insightsService.generateInsights();
   }
 }

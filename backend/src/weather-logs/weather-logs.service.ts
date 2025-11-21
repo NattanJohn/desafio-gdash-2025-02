@@ -25,6 +25,14 @@ export class WeatherLogsService {
     return this.weatherLogModel.find().exec();
   }
 
+  async findRecentLogs(limit: number): Promise<WeatherLogDocument[]> {
+    return this.weatherLogModel
+      .find()
+      .sort({ timestamp: -1 })
+      .limit(limit)
+      .exec();
+  }
+
   async findOne(id: string): Promise<WeatherLogDocument> {
     const log = await this.weatherLogModel.findById(id).exec();
     if (!log) {

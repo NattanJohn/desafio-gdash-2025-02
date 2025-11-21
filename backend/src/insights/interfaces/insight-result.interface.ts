@@ -1,10 +1,10 @@
 export interface InsightResult {
-  period: string;
+  period: string; // Ex: Últimos 10 logs
   totalRecords: number;
   metrics: {
     avgTemperature: number;
     avgHumidity: number;
   };
-  analysis: string;
+  analysis: string; // O Resumo em texto
   suggestedAction: string;
 }
