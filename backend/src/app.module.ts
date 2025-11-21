@@ -5,6 +5,7 @@ import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { WeatherLogsModule } from './weather-logs/weather-logs.module';
 import { InsightsModule } from './insights/insights.module';
+import { ExternalApiModule } from './external-api/external-api.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { InsightsModule } from './insights/insights.module';
     AuthModule,
     WeatherLogsModule,
     InsightsModule,
+    ExternalApiModule,
   ],
   controllers: [],
   providers: [],
