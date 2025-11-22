@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import { AuthTemplate } from "../components/templates/AuthTemplate.tsx";
 import { LoginForm } from "../components/molecules/LoginForm.tsx";
-import { useAuth } from '@/contexts/UseAuth.ts';
+import { useAuth } from '@/contexts/useAuth.ts';
 
 const Login = () => {
     const { isAuthenticated } = useAuth();

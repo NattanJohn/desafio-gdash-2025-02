@@ -5,7 +5,8 @@ import { toast } from "sonner";
 import { Button } from "../atoms/button";
 import { Label } from "@radix-ui/react-label";
 import { Input } from "../atoms/input";
-import { useAuth } from "@/contexts/UseAuth";
+import { useAuth } from "@/contexts/useAuth";
+
 export const LoginForm = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -25,7 +26,6 @@ export const LoginForm = () => {
       toast.success("Login bem-sucedido!", {
         description: "Redirecionando para o Dashboard...",
       });
-      // Redireciona para a rota protegida ("/")
       navigate("/", { replace: true });
     } else {
       toast.error("Erro de Login", {

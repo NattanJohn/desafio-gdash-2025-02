@@ -113,7 +113,7 @@ if __name__ == "__main__":
     # Executa a primeira vez imediatamente
     job() 
     # Agenda a execução a cada 1 hora
-    schedule.every(1).hour.do(job) 
+    schedule.every(1).minute.do(job) 
     
     # Loop de execução de agendamentos
     while True:
