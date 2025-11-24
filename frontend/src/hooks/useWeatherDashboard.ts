@@ -1,6 +1,6 @@
 // src/hooks/useWeatherDashboard.ts
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { getWeatherLogs, getInsights, exportLogs } from "@/services/weatherService";
+import { getWeatherLogs, getInsights, exportLogs } from "@/services/api";
 import type { InsightData, WeatherLog } from "@/types/weather";
 import { useAuth } from "@/contexts/useAuth";
 

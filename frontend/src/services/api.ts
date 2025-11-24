@@ -1,7 +1,7 @@
 // src/services/weatherService.ts
 import type { InsightData, WeatherLog } from "@/types/weather";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE || "http://localhost:3000";
+const API_BASE_URL = 'http://localhost:3000';
 
 export async function getWeatherLogs(token: string | null): Promise<WeatherLog[]> {
   const controller = new AbortController();
@@ -63,3 +63,22 @@ export async function exportLogs(token: string | null, format: "csv" | "xlsx") {
   URL.revokeObjectURL(url);
   return true;
 }
+
+export const SpaceXService = {
+  async getLaunches(token: string, page: number = 1, limit: number = 10) {
+    const response = await fetch(
+      `${API_BASE_URL}/external-data/spacex/launches?page=${page}&limit=${limit}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch SpaceX launches");
+    }
+
+    return response.json();
+  },
+};

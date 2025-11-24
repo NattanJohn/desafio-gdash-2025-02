@@ -2,6 +2,7 @@ import { Routes, Route } from "react-router-dom";
 import Login from "@/pages/Login";
 import { PrivateRoute } from "./PrivateRoute";
 import Dashboard from "@/pages/Dashboard";
+import ExplorePage from "@/pages/Explore";
 
 
 export function AppRoutes() {
@@ -14,6 +15,15 @@ export function AppRoutes() {
         element={
           <PrivateRoute>
             <Dashboard />
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/external-api"
+        element={
+          <PrivateRoute>
+            <ExplorePage />
           </PrivateRoute>
         }
       />

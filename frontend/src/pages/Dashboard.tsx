@@ -16,9 +16,12 @@ import { WeatherLogsTable } from "../components/organisms/WeatherLogsTable";
 import { Sidebar } from "../components/organisms/Sidebar";
 import { useWeatherDashboard } from "@/hooks/useWeatherDashboard";
 import { useAuth } from "@/contexts/useAuth";
+import { TemperatureChart } from "@/components/molecules/TemperatureChart";
+import { useSidebar } from "@/contexts/SidebarContext";
 
 export default function Dashboard() {
   const { logout } = useAuth();
+  const { collapsed } = useSidebar();
   const {
     logs,
     insights,
@@ -60,10 +63,10 @@ export default function Dashboard() {
 
   if (!insights || logs.length === 0) {
     return (
-      <div className="flex bg-gray-100 min-h-screen">
+      <div className="min-h-screen bg-gray-50 flex">
         <Sidebar logout={logout} />
 
-        <main className="grow p-8 flex flex-col items-center justify-center">
+        <main className="flex-1 p-4 md:p-8 md:ml-72">
           <Cloud className="h-16 w-16 text-indigo-500 mb-4" />
           <h2 className="text-2xl font-bold mb-2">
             Aguardando Dados do Pipeline
@@ -82,12 +85,16 @@ export default function Dashboard() {
     <div className="flex bg-gray-50 min-h-screen font-sans">
       <Sidebar logout={logout} />
 
-      <main className="grow p-4 md:p-8">
+      <main
+        className={`
+          flex-1 p-4 md:p-8 transition-all duration-300
+          ${collapsed ? "md:ml-20" : "md:ml-72"}
+          `}
+      >
         <div className="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center border-b pb-4">
-          <div className="md:ml-0 ml-16">
-            {" "}
-            <h1 className="text-3xl font-extrabold">
-              Dashboard Climático GDASH
+          <div>
+            <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white flex items-center gap-3 md:ml-0 ml-16">
+              Dashboard Climático de {cityCountry}
             </h1>
             <p className="text-gray-500 text-sm">
               {cityCountry} - Atualizado:{" "}
@@ -153,11 +160,23 @@ export default function Dashboard() {
         </div>
 
         <Card className="mt-6 p-6">
-          <h3 className="text-xl font-semibold">
-            Gráfico de Tendência (Em Construção)
-          </h3>
-          <div className="h-64 mt-4 bg-gray-100 rounded-lg flex items-center justify-center text-gray-400">
-            Espaço Reservado para o Gráfico
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                <Thermometer className="h-5 w-5 text-indigo-600" />
+                Evolução da Temperatura
+              </h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Variação térmica nas últimas horas.
+              </p>
+            </div>
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 animate-pulse">
+              Ao vivo
+            </span>
+          </div>
+
+          <div className="w-full">
+            <TemperatureChart data={logs} />
           </div>
         </Card>
       </main>

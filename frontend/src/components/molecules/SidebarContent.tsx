@@ -1,5 +1,6 @@
-import { LayoutDashboard, ChevronRight, LogOut } from "lucide-react";
-import { Button } from "@/components/atoms/button";
+import { LayoutDashboard, LogOut, Rocket, Users } from "lucide-react";
+import { Link, useLocation } from "react-router-dom";
+import { useSidebar } from "@/contexts/SidebarContext";
 
 type Props = {
   logout: () => void;
@@ -8,54 +9,97 @@ type Props = {
 };
 
 export function SidebarContent({ logout, isMobile = false, closeMenu }: Props) {
+  const { pathname } = useLocation();
+  const { collapsed } = useSidebar();
+  const effectiveCollapsed = isMobile ? false : collapsed;
+
+  const getLinkClasses = (path: string) => {
+    const isActive = pathname === path;
+    const alignment = effectiveCollapsed
+      ? "justify-center"
+      : "items-center gap-3";
+
+    const base = [
+      "flex",
+      alignment,
+      "p-3 rounded-lg font-medium transition-colors",
+    ].join(" ");
+
+    if (isActive) return `${base} bg-indigo-50 text-indigo-700 font-bold`;
+    return `${base} text-gray-600 hover:bg-gray-100`;
+  };
+
+  const textClass = `
+    transition-all duration-300 overflow-hidden whitespace-nowrap
+    ${effectiveCollapsed ? "opacity-0 w-0" : "opacity-100 w-[120px]"}
+  `;
+
   return (
     <div className={`flex flex-col h-full ${isMobile ? "p-4" : "p-0"}`}>
-      <h2 className="text-3xl font-extrabold text-indigo-600 mb-10 flex items-center gap-2">
-        GDASH
-      </h2>
+      
+      <div
+        className={`flex items-center justify-center transition-all duration-300 mb-6 ${
+          effectiveCollapsed ? "h-12" : "h-20"
+        }`}
+      >
+        <h2
+          className={`text-3xl font-extrabold text-indigo-600 transition-opacity duration-300 ${
+            effectiveCollapsed ? "opacity-0 pointer-events-none" : "opacity-100"
+          }`}
+        >
+          GDash
+        </h2>
+      </div>
 
       <nav className="grow space-y-2">
-        <a
-          href="/"
+        <Link
+          className={getLinkClasses("/")}
+          to="/"
           onClick={isMobile ? closeMenu : undefined}
-          className="flex items-center gap-3 p-3 rounded-lg bg-indigo-100 text-indigo-700 font-bold transition-colors shadow-md"
         >
           <LayoutDashboard className="h-5 w-5" />
-          Dashboard
-        </a>
+          <span className={textClass}>Dashboard</span>
+        </Link>
 
-        <a
-          href="/users"
+        <Link
+          className={getLinkClasses("/users")}
+          to="/users"
           onClick={isMobile ? closeMenu : undefined}
-          className="flex items-center gap-3 p-3 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors"
         >
-          <ChevronRight className="h-5 w-5" />
-          Usuários (Falta)
-        </a>
+          <Users className="h-5 w-5" />
+          <span className={textClass}>Usuários</span>
+        </Link>
 
-        <a
-          href="/external-api"
+        <Link
+          className={getLinkClasses("/external-api")}
+          to="/external-api"
           onClick={isMobile ? closeMenu : undefined}
-          className="flex items-center gap-3 p-3 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors"
         >
-          <ChevronRight className="h-5 w-5" />
-          Explorar API (Opcional)
-        </a>
+          <Rocket className="h-5 w-5" />
+          <span className={textClass}>SpaceX API</span>
+        </Link>
       </nav>
 
       <div className="mt-auto pt-4 border-t border-gray-200">
-        <Button
-          onClick={() => {
+        <Link
+          to="#"
+          onClick={(e) => {
+            e.preventDefault();
             logout();
             if (isMobile && closeMenu) closeMenu();
           }}
-          variant="ghost"
-          className="w-full justify-start text-red-500 hover:text-red-700 hover:bg-red-50"
+          className={`
+    flex w-full text-red-500 hover:text-red-700 hover:bg-red-50
+    ${effectiveCollapsed ? "justify-center" : "items-center gap-3"}
+    p-3 rounded-lg font-medium transition-colors
+  `}
         >
-          <LogOut className="h-4 w-4 mr-2" />
-          Sair
-        </Button>
+          <LogOut className="h-5 w-5" />
+          <span className={textClass}>Sair</span>
+        </Link>
       </div>
     </div>
   );
 }
+
+export default SidebarContent;
