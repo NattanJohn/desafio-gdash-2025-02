@@ -19,7 +19,7 @@ import { useAuth } from "@/contexts/useAuth";
 import { TemperatureChart } from "@/components/molecules/TemperatureChart";
 import { useSidebar } from "@/contexts/SidebarContext";
 
-export default function Dashboard() {
+export default function Dashboardpage() {
   const { logout } = useAuth();
   const { collapsed } = useSidebar();
   const {

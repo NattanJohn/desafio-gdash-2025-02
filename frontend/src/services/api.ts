@@ -1,52 +1,92 @@
-// src/services/weatherService.ts
 import type { InsightData, WeatherLog } from "@/types/weather";
+import { UsersService } from "./users";
 
-const API_BASE_URL = 'http://localhost:3000';
+const API_BASE_URL = "http://localhost:3000";
 
-export async function getWeatherLogs(token: string | null): Promise<WeatherLog[]> {
+function createAbortController(timeout = 10000) {
   const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeout);
+  return { controller, timer };
+}
+
+export async function apiRequest<T>(
+  endpoint: string,
+  method: "GET" | "POST" | "PATCH" | "DELETE" = "GET",
+  token?: string | null,
+  body?: unknown,
+  customHeaders?: Record<string, string>
+): Promise<T> {
+  const { controller, timer } = createAbortController();
   const signal = controller.signal;
 
-  const headers: Record<string,string> = {
+  const headers: Record<string, string> = {
     "Content-Type": "application/json",
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    ...customHeaders,
   };
-  if (token) headers["Authorization"] = `Bearer ${token}`;
 
-  const res = await fetch(`${API_BASE_URL}/weather-logs`, { method: "GET", headers, signal });
-  if (res.status === 401) throw new Error("Unauthorized");
-  if (!res.ok) throw new Error(`Erro ao buscar weather logs (${res.status})`);
-  return res.json();
+  try {
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      method,
+      headers,
+      signal,
+      ...(body ? { body: JSON.stringify(body) } : {}),
+    });
+
+    if (response.status === 401) {
+      throw new Error("Unauthorized");
+    }
+
+    if (!response.ok) {
+      const message = await response.text();
+      throw new Error(message || `Erro (${response.status})`);
+    }
+
+    if (response.status === 204 || response.headers.get('content-length') === '0') {
+        return {} as T; 
+    }
+
+    return response.json();
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
-export async function getInsights(token: string | null): Promise<InsightData> {
-  const headers: Record<string,string> = {
-    "Content-Type": "application/json",
-  };
-  if (token) headers["Authorization"] = `Bearer ${token}`;
-
-  const res = await fetch(`${API_BASE_URL}/insights`, { method: "GET", headers });
-  if (res.status === 401) throw new Error("Unauthorized");
-  if (!res.ok) throw new Error(`Erro ao buscar insights (${res.status})`);
-  return res.json();
+export async function getWeatherLogs(
+  token: string | null
+): Promise<WeatherLog[]> {
+  return apiRequest("/weather-logs", "GET", token);
 }
 
-export async function exportLogs(token: string | null, format: "csv" | "xlsx") {
+
+export async function getInsights(
+  token: string | null
+): Promise<InsightData> {
+  return apiRequest("/insights", "GET", token);
+}
+
+export async function exportLogs(
+  token: string | null,
+  format: "csv" | "xlsx"
+) {
   if (!token) throw new Error("Unauthorized");
 
-  const headers: Record<string,string> = {
-    "Authorization": `Bearer ${token}`,
-  };
+  const response = await fetch(
+    `${API_BASE_URL}/weather-logs/export-${format}`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
 
-  const res = await fetch(`${API_BASE_URL}/weather-logs/export-${format}`, {
-    method: "GET",
-    headers,
-  });
+  if (response.status === 401) throw new Error("Unauthorized");
+  if (!response.ok) throw new Error(`Erro ao exportar (${response.status})`);
 
-  if (res.status === 401) throw new Error("Unauthorized");
-  if (!res.ok) throw new Error(`Erro ao exportar (${res.status})`);
+  const blob = await response.blob();
+  const contentDisposition = response.headers.get("content-disposition");
 
-  const blob = await res.blob();
-  const contentDisposition = res.headers.get("content-disposition");
   let filename = `weather-logs.${format}`;
   if (contentDisposition) {
     const match = contentDisposition.match(/filename="?([^"]+)"?/);
@@ -61,24 +101,28 @@ export async function exportLogs(token: string | null, format: "csv" | "xlsx") {
   a.click();
   a.remove();
   URL.revokeObjectURL(url);
+
   return true;
 }
 
 export const SpaceXService = {
-  async getLaunches(token: string, page: number = 1, limit: number = 10) {
-    const response = await fetch(
-      `${API_BASE_URL}/external-data/spacex/launches?page=${page}&limit=${limit}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
+  async getLaunches(
+    token: string,
+    page: number = 1,
+    limit: number = 10
+  ) {
+    return apiRequest(
+      `/external-data/spacex/launches?page=${page}&limit=${limit}`,
+      "GET",
+      token
     );
-
-    if (!response.ok) {
-      throw new Error("Failed to fetch SpaceX launches");
-    }
-
-    return response.json();
   },
+};
+
+export const API = {
+  getWeatherLogs,
+  getInsights,
+  exportLogs,
+  SpaceX: SpaceXService,
+  Users: UsersService,
 };

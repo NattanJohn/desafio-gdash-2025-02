@@ -1,14 +1,15 @@
 import { Routes, Route } from "react-router-dom";
-import Login from "@/pages/Login";
 import { PrivateRoute } from "./PrivateRoute";
-import Dashboard from "@/pages/Dashboard";
-import ExplorePage from "@/pages/Explore";
+import Dashboard from "@/pages/DashboardPage";
+import ExplorePage from "@/pages/ExplorePage";
+import UsersPage from "@/pages/UserPage";
+import { LoginPage } from "@/pages/LoginPage";
 
 
 export function AppRoutes() {
   return (
     <Routes>
-      <Route path="/login" element={<Login />} />
+      <Route path="/login" element={<LoginPage />} />
 
       <Route
         path="/"
@@ -24,6 +25,15 @@ export function AppRoutes() {
         element={
           <PrivateRoute>
             <ExplorePage />
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/users"
+        element={
+          <PrivateRoute>
+            <UsersPage />
           </PrivateRoute>
         }
       />

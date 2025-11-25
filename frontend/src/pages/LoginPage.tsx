@@ -4,7 +4,7 @@ import { AuthTemplate } from "../components/templates/AuthTemplate.tsx";
 import { LoginForm } from "../components/molecules/LoginForm.tsx";
 import { useAuth } from '@/contexts/useAuth.ts';
 
-const Login = () => {
+export const LoginPage = () => {
     const { isAuthenticated } = useAuth();
     const navigate = useNavigate();
 
@@ -29,5 +29,3 @@ const Login = () => {
         </AuthTemplate>
     );
 };
-
-export default Login;
