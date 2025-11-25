@@ -1,3 +1,4 @@
+// src/pages/UsersPage.tsx
 import { useEffect, useState } from "react";
 import { Sidebar } from "../components/organisms/Sidebar";
 import { UsersTable } from "../components/organisms/UsersTable";
@@ -7,6 +8,7 @@ import { UsersService, type User, type UserFormData } from "../services/users";
 import { useAuth } from "../contexts/useAuth";
 import { useSidebar } from "../contexts/SidebarContext";
 import { toast } from "sonner";
+import { parseApiError } from "@/utils/apiErrors";
 
 const UsersPage = () => {
   const { token, logout } = useAuth();
@@ -20,31 +22,29 @@ const UsersPage = () => {
     try {
       const data = await UsersService.list(token);
       setUsers(data);
-    } catch {
-      toast.error("Erro ao carregar usuários");
+    } catch (err) {
+      const parsed = parseApiError(err);
+      toast.error(parsed.message || "Erro ao carregar usuários");
     }
   };
 
   useEffect(() => {
     if (!token) return;
-
-    const fetchData = async () => {
+    (async () => {
       await loadUsers();
-    };
-
-    fetchData();
+    })();
   }, [token]);
-
-
 
   const handleSave = async (data: UserFormData): Promise<void> => {
     if (!token) return;
 
     try {
       if (editingUser) {
+        // update
         await UsersService.update(editingUser._id, data, token);
         toast.success("Usuário atualizado com sucesso!");
       } else {
+        // create
         await UsersService.create(data, token);
         toast.success("Usuário criado com sucesso!");
       }
@@ -53,21 +53,33 @@ const UsersPage = () => {
       setEditingUser(null);
       await loadUsers();
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Erro ao salvar o usuário";
-      toast.error(message);
+      const parsed = parseApiError(err);
+      // Specific handling by status code
+      if (parsed.status === 409) {
+        // Conflict -> duplicate email
+        toast.error(parsed.message || "Já existe um usuário com este e-mail.");
+      } else if (parsed.status === 400) {
+        // Bad Request -> validation (ex: missing password)
+        toast.error(parsed.message || "Dados inválidos. Verifique os campos.");
+      } else {
+        // Fallback generic
+        toast.error(parsed.message || "Erro ao salvar o usuário.");
+      }
     }
   };
 
   const handleDelete = async (id: string): Promise<void> => {
     if (!token) return;
 
+    if (!confirm("Tem certeza que deseja excluir este usuário?")) return;
+
     try {
       await UsersService.delete(id, token);
       toast.success("Usuário removido.");
       await loadUsers();
-    } catch {
-      toast.error("Erro ao excluir usuário");
+    } catch (err) {
+      const parsed = parseApiError(err);
+      toast.error(parsed.message || "Erro ao excluir usuário.");
     }
   };
 
@@ -107,7 +119,7 @@ const UsersPage = () => {
         <UserDialog
           isOpen={isDialogOpen}
           onClose={handleCloseDialog}
-          initialData={editingUser}
+          initialData={editingUser ?? undefined}
           onSubmit={handleSave}
         />
       </div>
