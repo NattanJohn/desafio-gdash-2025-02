@@ -96,7 +96,7 @@ export default function Dashboardpage() {
             <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white flex items-center gap-3 md:ml-0 ml-16">
               Dashboard Climático de {cityCountry}
             </h1>
-            <p className="text-gray-500 text-sm">
+            <p className="text-gray-500 text-sm md:ml-0 ml-16">
               {cityCountry} - Atualizado:{" "}
               {latest
                 ? new Date(latest.timestamp).toLocaleString("pt-BR")

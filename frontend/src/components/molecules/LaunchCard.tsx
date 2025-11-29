@@ -1,91 +1,171 @@
+// path: components/molecules/LaunchCard.tsx
 import React from "react";
-import { Calendar, Rocket, CheckCircle2, XCircle } from "lucide-react";
+import { Calendar, Rocket, Info } from "lucide-react";
+import { StatusBadge } from "../atoms/status-badge";
+
+export interface SpaceXRocket {
+  name: string;
+  height_m: number | null;
+  diameter_m: number | null;
+  mass_kg: number | null;
+  stages: number | null;
+  cost_per_launch: number | null;
+  first_flight: string | null;
+  images: string[];
+}
+
+export interface SpaceXLaunchpad {
+  name: string;
+  region: string;
+  locality: string;
+  latitude: number;
+  longitude: number;
+}
+
+export interface SpaceXPayload {
+  id: string;
+  name: string;
+  type: string;
+  mass_kg: number | null;
+  orbit: string | null;
+}
 
 export interface SpaceXLaunch {
   id: string;
   mission_name: string;
   date_utc: string;
-  rocket: string;
   details: string | null;
   success: boolean | null;
+  rocket: SpaceXRocket;
+  launchpad?: SpaceXLaunchpad | null;
+  payloads: SpaceXPayload[];
   links: {
-    patch: {
-      small: string | null;
-    };
+    patch: { small: string | null };
     webcast: string | null;
+    youtube_id?: string | null;
+    images?: string[];
   };
 }
 
-const StatusBadge = ({ success }: { success: boolean | null }) => {
-  if (success === true) {
-    return (
-      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
-        <CheckCircle2 className="w-3 h-3" /> Sucesso
-      </span>
-    );
+interface LaunchCardProps {
+  launch: SpaceXLaunch;
+  onOpenDetails?: (launch: SpaceXLaunch) => void;
+}
+
+const formatLocalDateTime = (iso: string) => {
+  try {
+    return new Date(iso).toLocaleString("pt-BR", {
+      dateStyle: "medium",
+      timeStyle: "short",
+    });
+  } catch {
+    return iso;
   }
-  if (success === false) {
-    return (
-      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400">
-        <XCircle className="w-3 h-3" /> Falha
-      </span>
-    );
-  }
-  return (
-    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400">
-      Pendente
-    </span>
-  );
 };
 
-export const LaunchCard: React.FC<{ launch: SpaceXLaunch }> = ({ launch }) => {
+const daysSince = (iso: string) => {
+  try {
+    const diff = Date.now() - new Date(iso).getTime();
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    if (days === 0) return "Hoje";
+    if (days === 1) return "1 dia atrás";
+    return `${days} dias`;
+  } catch {
+    return "";
+  }
+};
+
+export const LaunchCard: React.FC<LaunchCardProps> = ({
+  launch,
+  onOpenDetails,
+}) => {
+  const patch = launch.links?.patch?.small ?? null;
+  const image = (launch.links.images && launch.links.images[0]) ?? patch;
+
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-xl transition-shadow border border-gray-100 dark:border-gray-700 overflow-hidden flex flex-col h-full">
-      <div className="p-5 flex flex-col grow">
-        <div className="flex justify-between items-start mb-4">
-          <div className="w-16 h-16 shrink-0 bg-gray-50 dark:bg-gray-700 rounded-lg flex items-center justify-center p-1">
-            {launch.links.patch.small ? (
-              <img
-                src={launch.links.patch.small}
-                alt={launch.mission_name}
-                className="w-full h-full object-contain"
-              />
-            ) : (
-              <Rocket className="w-8 h-8 text-gray-400" />
-            )}
+    <article className="bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-xl transition-shadow border border-gray-100 dark:border-gray-700 overflow-hidden flex flex-col h-full">
+      <div
+        className="h-40 bg-gray-50 dark:bg-gray-900 flex items-center justify-center overflow-hidden"
+        aria-hidden
+      >
+        {image ? (
+          <img
+            src={image}
+            alt={launch.mission_name}
+            className="w-full h-48 object-contain rounded-t-lg bg-black"
+          />
+        ) : (
+          <div className="flex items-center justify-center h-full w-full text-gray-300">
+            <Rocket className="w-12 h-12" />
           </div>
-          <StatusBadge success={launch.success} />
-        </div>
-
-        <div className="mb-3">
-          <h3 className="text-lg font-bold text-gray-900 dark:text-white leading-tight mb-1">
-            {launch.mission_name}
-          </h3>
-          <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
-            <Calendar className="w-3 h-3 mr-1" />
-            {new Date(launch.date_utc).toLocaleDateString("pt-BR")}
-          </div>
-        </div>
-
-        <div className="flex items-center text-sm text-indigo-600 dark:text-indigo-400 font-medium mb-3">
-          <Rocket className="w-4 h-4 mr-1.5" />
-          {launch.rocket}
-        </div>
-
-        <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-3 mb-4 grow">
-          {launch.details || "Sem detalhes disponíveis para esta missão."}
-        </p>
-        {launch.links.webcast && (
-          <a
-            href={launch.links.webcast}
-            target="_blank"
-            rel="noreferrer"
-            className="text-xs font-semibold text-center block w-full py-2 rounded-lg border border-indigo-200 dark:border-indigo-900 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/50 transition-colors"
-          >
-            Assistir Lançamento
-          </a>
         )}
       </div>
-    </div>
+
+      <div className="p-4 flex flex-col grow">
+        <div className="flex justify-between items-start gap-2 mb-2">
+          <div>
+            <h3 className="text-md font-semibold text-gray-900 dark:text-white leading-tight">
+              {launch.mission_name}
+            </h3>
+            <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mt-1">
+              <Calendar className="w-3 h-3" />
+              <span>{formatLocalDateTime(launch.date_utc)}</span>
+              <span className="px-1">·</span>
+              <span>{daysSince(launch.date_utc)}</span>
+            </div>
+          </div>
+
+          <div>
+            <StatusBadge success={launch.success} />
+          </div>
+        </div>
+
+        <div className="mt-2 flex flex-wrap items-center gap-3 text-sm text-indigo-600 dark:text-indigo-400 font-medium">
+          <div className="flex items-center gap-2">
+            <Rocket className="w-4 h-4" />
+            <span>{launch.rocket?.name ?? "Unknown Rocket"}</span>
+          </div>
+
+          {launch.launchpad && (
+            <div className="text-xs text-gray-500 dark:text-gray-400">
+              <span>{launch.launchpad.locality}</span>
+              <span className="mx-1">·</span>
+              <span>{launch.launchpad.name}</span>
+            </div>
+          )}
+
+          <div className="ml-auto text-xs text-gray-500 dark:text-gray-400">
+            Payloads: {launch.payloads?.length ?? 0}
+          </div>
+        </div>
+
+        <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-3 mt-3 mb-3 grow">
+          {launch.details ?? "Sem detalhes disponíveis para esta missão."}
+        </p>
+
+        <div className="mt-2 flex gap-2">
+          {launch.links?.webcast && (
+            <a
+              href={launch.links.webcast}
+              target="_blank"
+              rel="noreferrer"
+              className="flex-1 inline-flex items-center justify-center gap-2 px-3 py-2 rounded-md border border-indigo-200 dark:border-indigo-900 text-indigo-600 dark:text-indigo-400 text-xs font-semibold hover:bg-indigo-50 dark:hover:bg-indigo-900/50 transition"
+            >
+              Assistir
+            </a>
+          )}
+
+          {onOpenDetails && (
+            <button
+              onClick={() => onOpenDetails(launch)}
+              className="flex-1 inline-flex items-center justify-center gap-2 px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+            >
+              <Info className="w-4 h-4" />
+              Detalhes
+            </button>
+          )}
+        </div>
+      </div>
+    </article>
   );
 };

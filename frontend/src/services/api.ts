@@ -112,7 +112,7 @@ export const SpaceXService = {
     limit: number = 10
   ) {
     return apiRequest(
-      `/external-data/spacex/launches?page=${page}&limit=${limit}`,
+      `/spacex/launches?page=${page}&limit=${limit}`,
       "GET",
       token
     );
