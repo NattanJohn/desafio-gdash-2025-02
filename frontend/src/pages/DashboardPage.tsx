@@ -35,9 +35,9 @@ export default function Dashboardpage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-100">
+      <div className="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-black">
         <Loader2 className="h-10 w-10 animate-spin text-indigo-600" />
-        <p className="ml-4 text-xl font-medium text-gray-700">
+        <p className="ml-4 text-xl font-medium text-gray-700 dark:text-gray-300">
           Carregando dados do Clima e Insights...
         </p>
       </div>
@@ -46,12 +46,14 @@ export default function Dashboardpage() {
 
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-8">
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 dark:bg-black p-8">
         <AlertTriangle className="h-12 w-12 text-red-500 mb-4" />
-        <h2 className="text-2xl font-bold text-red-600 mb-2">
+        <h2 className="text-2xl font-bold text-red-600 dark:text-red-400 mb-2">
           Erro de Comunicação com a API
         </h2>
-        <p className="text-center text-gray-600 max-w-lg">{error}</p>
+        <p className="text-center text-gray-600 dark:text-gray-300 max-w-lg">
+          {error}
+        </p>
 
         <Button onClick={refresh} className="mt-6 gap-2">
           <RefreshCw className="h-4 w-4" />
@@ -63,12 +65,12 @@ export default function Dashboardpage() {
 
   if (!insights || logs.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-50 flex">
+      <div className="min-h-screen bg-gray-50 dark:bg-black flex">
         <Sidebar logout={logout} />
 
         <main className="flex-1 p-4 md:p-8 md:ml-72">
           <Cloud className="h-16 w-16 text-indigo-500 mb-4" />
-          <h2 className="text-2xl font-bold mb-2">
+          <h2 className="text-2xl font-bold mb-2 text-gray-900 dark:text-white">
             Aguardando Dados do Pipeline
           </h2>
 
@@ -82,21 +84,21 @@ export default function Dashboardpage() {
   }
 
   return (
-    <div className="flex bg-gray-50 min-h-screen font-sans">
+    <div className="flex bg-gray-50 dark:bg-black min-h-screen font-sans">
       <Sidebar logout={logout} />
 
       <main
         className={`
           flex-1 p-4 md:p-8 transition-all duration-300
           ${collapsed ? "md:ml-20" : "md:ml-72"}
-          `}
+        `}
       >
-        <div className="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center border-b pb-4">
+        <div className="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center border-b pb-4 border-gray-300 dark:border-gray-700">
           <div>
             <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white flex items-center gap-3 md:ml-0 ml-16">
               Dashboard Climático de {cityCountry}
             </h1>
-            <p className="text-gray-500 text-sm md:ml-0 ml-16">
+            <p className="text-gray-500 dark:text-gray-400 text-sm md:ml-0 ml-16">
               {cityCountry} - Atualizado:{" "}
               {latest
                 ? new Date(latest.timestamp).toLocaleString("pt-BR")
@@ -159,7 +161,7 @@ export default function Dashboardpage() {
           <WeatherLogsTable logs={logs} />
         </div>
 
-        <Card className="mt-6 p-6">
+        <Card className="mt-6 p-6 dark:bg-neutral-900 dark:border-gray-700">
           <div className="flex items-center justify-between mb-6">
             <div>
               <h3 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
@@ -170,7 +172,7 @@ export default function Dashboardpage() {
                 Variação térmica nas últimas horas.
               </p>
             </div>
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 animate-pulse">
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300 animate-pulse">
               Ao vivo
             </span>
           </div>

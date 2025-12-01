@@ -99,7 +99,7 @@ const UsersPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex font-sans">
+    <div className="bg-gray-50 dark:bg-gray-900 flex font-sans">
       <Sidebar logout={logout} />
 
       <div

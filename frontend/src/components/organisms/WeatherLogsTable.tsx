@@ -75,6 +75,9 @@ export const WeatherLogsTable: React.FC<{ logs: WeatherLog[] }> = ({
           <thead className="bg-gray-50">
             <tr>
               <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Cidade
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Data/Hora
               </th>
               <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -93,6 +96,9 @@ export const WeatherLogsTable: React.FC<{ logs: WeatherLog[] }> = ({
               const condition = getConditionDisplay(log.condition);
               return (
                 <tr key={log._id}>
+                  <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
+                    {log.city}
+                  </td>
                   <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
                     {new Date(log.timestamp).toLocaleDateString("pt-BR")}
                     <span className="block text-xs text-gray-500">

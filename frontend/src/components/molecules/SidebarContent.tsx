@@ -1,6 +1,7 @@
 import { LayoutDashboard, LogOut, Rocket, Users } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useSidebar } from "@/contexts/SidebarContext";
+import { ThemeToggle } from "./ThemeToggle";
 
 type Props = {
   logout: () => void;
@@ -36,7 +37,6 @@ export function SidebarContent({ logout, isMobile = false, closeMenu }: Props) {
 
   return (
     <div className={`flex flex-col h-full ${isMobile ? "p-4" : "p-0"}`}>
-      
       <div
         className={`flex items-center justify-center transition-all duration-300 mb-6 ${
           effectiveCollapsed ? "h-12" : "h-20"
@@ -97,6 +97,7 @@ export function SidebarContent({ logout, isMobile = false, closeMenu }: Props) {
           <LogOut className="h-5 w-5" />
           <span className={textClass}>Sair</span>
         </Link>
+        <ThemeToggle  />
       </div>
     </div>
   );
