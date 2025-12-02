@@ -17,7 +17,8 @@ export function Sidebar({ logout }: Props) {
         className={`
           hidden md:flex flex-col fixed left-0 top-0 h-screen
           bg-white border-r border-gray-200 shadow-xl z-40
-          transition-all duration-300
+          transition-all duration-300 
+          dark:bg-neutral-900 dark:border-neutral-800
           ${collapsed ? "w-20" : "w-72"}
         `}
       >
@@ -25,7 +26,10 @@ export function Sidebar({ logout }: Props) {
           <Button
             variant="ghost"
             onClick={toggleCollapse}
-            className="p-2 h-auto text-gray-500 hover:bg-gray-100"
+            className="
+              p-2 h-auto text-gray-500 hover:bg-gray-100
+              dark:text-gray-300 dark:hover:bg-neutral-800
+            "
           >
             {collapsed ? (
               <ChevronRight className="h-5 w-5" />
@@ -38,16 +42,26 @@ export function Sidebar({ logout }: Props) {
         <SidebarContent logout={logout} />
       </aside>
 
+      {/* BOTÃO MOBILE */}
       <div className="md:hidden p-4 fixed top-0 left-0 z-50">
         {!isMenuOpen && (
-          <Button variant="outline" onClick={toggleMenu} className="shadow-md">
+          <Button
+            variant="outline"
+            onClick={toggleMenu}
+            className="
+              shadow-md bg-white dark:bg-neutral-900
+              border-gray-300 dark:border-neutral-700
+              text-gray-700 dark:text-gray-300
+            "
+          >
             <Menu className="h-5 w-5" />
           </Button>
         )}
       </div>
 
       <div
-        className={`fixed inset-0 z-40 md:hidden transition-opacity duration-300
+        className={`
+          fixed inset-0 z-40 md:hidden transition-opacity duration-300
           ${
             isMenuOpen
               ? "opacity-100 pointer-events-auto"
@@ -55,10 +69,15 @@ export function Sidebar({ logout }: Props) {
           }
         `}
         onClick={toggleMenu}
-        style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
+        style={{
+          backgroundColor: "rgba(0,0,0,0.5)",
+        }}
       >
         <div
-          className={`fixed top-0 left-0 h-full bg-white shadow-2xl w-72
+          className={`
+            fixed top-0 left-0 h-full w-72 shadow-2xl
+            bg-white dark:bg-neutral-900
+            border-r border-gray-200 dark:border-neutral-800
             transform transition-transform duration-300
             ${isMenuOpen ? "translate-x-0" : "-translate-x-full"}
           `}
@@ -68,7 +87,10 @@ export function Sidebar({ logout }: Props) {
             <Button
               variant="ghost"
               onClick={toggleMenu}
-              className="p-2 h-auto text-gray-500 hover:bg-gray-100"
+              className="
+                p-2 h-auto text-gray-500 hover:bg-gray-100
+                dark:text-gray-300 dark:hover:bg-neutral-800
+              "
             >
               <X className="h-6 w-6" />
             </Button>

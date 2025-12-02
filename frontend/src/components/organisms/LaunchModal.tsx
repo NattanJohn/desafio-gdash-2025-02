@@ -1,8 +1,6 @@
-// path: components/organisms/LaunchModal.tsx
 import React from "react";
 import { Dialog, DialogContent } from "@/components/atoms/dialog";
-import { Button } from "@/components/atoms/button";
-import { MapPin, Film, ImageIcon } from "lucide-react";
+import { MapPin, Film, Rocket } from "lucide-react";
 import type { SpaceXLaunch } from "@/components/molecules/LaunchCard";
 import { StatusBadge } from "../atoms/status-badge";
 
@@ -32,15 +30,15 @@ export const LaunchModal: React.FC<LaunchModalProps> = ({
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
       <DialogContent
         className="
-          max-w-6xl   /* modal mais largo */
+          max-w-6xl
           w-full
-          max-h-[90vh] /* modal mais alto */
+          max-h-[90vh]
           rounded-xl
           p-0
           overflow-hidden
         "
       >
-        <div className="w-full bg-black/5 dark:bg-gray-900">
+        <div className="w-full bg-black/5 dark:bg-neutral-900">
           {images.length ? (
             <img
               src={images[0]}
@@ -49,7 +47,7 @@ export const LaunchModal: React.FC<LaunchModalProps> = ({
             />
           ) : (
             <div className="w-full h-52 md:h-64 flex items-center justify-center">
-              <ImageIcon className="w-12 h-12 text-gray-300" />
+              <Rocket className="w-12 h-12 text-gray-300" />
             </div>
           )}
         </div>
@@ -147,9 +145,6 @@ export const LaunchModal: React.FC<LaunchModalProps> = ({
                 </a>
               </div>
             )}
-            <Button variant="ghost" onClick={onClose} className="ml-auto">
-              Fechar
-            </Button>
           </div>
         </div>
       </DialogContent>

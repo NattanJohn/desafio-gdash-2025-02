@@ -118,3 +118,37 @@
     @apply bg-background text-foreground;
   }
 }
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Thumb */
+::-webkit-scrollbar-thumb {
+  background: #c5c5c5;
+  border-radius: 9999px;
+}
+
+/* Thumb hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #a1a1a1;
+}
+
+/* ----- Dark Mode ----- */
+.dark ::-webkit-scrollbar-thumb {
+  background: #3f3f3f;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #525252;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: transparent;
+}

@@ -26,8 +26,8 @@ export function SidebarContent({ logout, isMobile = false, closeMenu }: Props) {
       "p-3 rounded-lg font-medium transition-colors",
     ].join(" ");
 
-    if (isActive) return `${base} bg-indigo-50 text-indigo-700 font-bold`;
-    return `${base} text-gray-600 hover:bg-gray-100`;
+    if (isActive) return `${base} bg-indigo-50 dark:bg-indigo-900 dark:text-white text-indigo-700 font-bold`;
+    return `${base} text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-neutral-800`;
   };
 
   const textClass = `
@@ -43,7 +43,7 @@ export function SidebarContent({ logout, isMobile = false, closeMenu }: Props) {
         }`}
       >
         <h2
-          className={`text-3xl font-extrabold text-indigo-600 transition-opacity duration-300 ${
+          className={`text-3xl font-extrabold text-neutral-900 dark:text-white transition-opacity duration-300 ${
             effectiveCollapsed ? "opacity-0 pointer-events-none" : "opacity-100"
           }`}
         >
@@ -89,7 +89,7 @@ export function SidebarContent({ logout, isMobile = false, closeMenu }: Props) {
             if (isMobile && closeMenu) closeMenu();
           }}
           className={`
-    flex w-full text-red-500 hover:text-red-700 hover:bg-red-50
+    flex w-full text-red-500 dark:text-red-400 dark:hover:text-white dark:hover:bg-red-900 hover:text-red-700 hover:bg-red-50
     ${effectiveCollapsed ? "justify-center" : "items-center gap-3"}
     p-3 rounded-lg font-medium transition-colors
   `}

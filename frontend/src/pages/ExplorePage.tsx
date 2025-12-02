@@ -1,4 +1,3 @@
-// path: pages/ExplorePage.tsx
 import { useCallback, useEffect, useState } from "react";
 import { Sidebar } from "../components/organisms/Sidebar";
 import { Loader2 } from "lucide-react";
@@ -62,7 +61,7 @@ export default function ExplorePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex">
+    <div className="min-h-screen bg-gray-100 flex dark:bg-black">
       <Sidebar logout={logout} />
       <main className={`flex-1 p-4 md:p-8 transition-all duration-300 ${collapsed ? "md:ml-20" : "md:ml-72"}`}>
         <div className="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center border-b pb-4">
@@ -72,7 +71,7 @@ export default function ExplorePage() {
           </div>
 
           <div className="mt-4 md:mt-0 flex gap-2">
-            <Button onClick={() => fetchLaunches(1)} variant="ghost">Atualizar</Button>
+            <Button className="cursor-pointer" onClick={() => fetchLaunches(1)} variant="ghost">Atualizar</Button>
           </div>
         </div>
 

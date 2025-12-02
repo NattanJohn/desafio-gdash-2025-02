@@ -54,15 +54,11 @@ const UsersPage = () => {
       await loadUsers();
     } catch (err) {
       const parsed = parseApiError(err);
-      // Specific handling by status code
       if (parsed.status === 409) {
-        // Conflict -> duplicate email
         toast.error(parsed.message || "Já existe um usuário com este e-mail.");
       } else if (parsed.status === 400) {
-        // Bad Request -> validation (ex: missing password)
         toast.error(parsed.message || "Dados inválidos. Verifique os campos.");
       } else {
-        // Fallback generic
         toast.error(parsed.message || "Erro ao salvar o usuário.");
       }
     }
@@ -99,7 +95,7 @@ const UsersPage = () => {
   };
 
   return (
-    <div className="bg-gray-50 dark:bg-gray-900 flex font-sans">
+    <div className="bg-gray-50 flex font-sans overflow-x-visible">
       <Sidebar logout={logout} />
 
       <div

@@ -15,7 +15,7 @@ export const LoginPage = () => {
     }, [isAuthenticated, navigate]);
     if (isAuthenticated) {
         return (
-            <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-950">
+            <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-neutral-900">
                 <p className="text-lg text-gray-700 dark:text-gray-300">A redirecionar para a Dashboard...</p>
             </div>
         );

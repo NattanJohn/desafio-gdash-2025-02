@@ -4,6 +4,15 @@ import { Cloud, Droplet } from "lucide-react";
 import type { WeatherLog } from "@/types/weather";
 import { Pagination } from "../molecules/Pagination";
 
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/atoms/table";
+
 export const WeatherLogsTable: React.FC<{ logs: WeatherLog[] }> = ({
   logs,
 }) => {
@@ -36,25 +45,21 @@ export const WeatherLogsTable: React.FC<{ logs: WeatherLog[] }> = ({
     switch (condition) {
       case "Ensolarado":
         return {
-          text: "Ensolarado",
           icon: <Cloud className="h-4 w-4 text-yellow-500" />,
           color: "bg-yellow-100 text-yellow-800",
         };
       case "Nublado":
         return {
-          text: "Nublado",
           icon: <Cloud className="h-4 w-4 text-gray-600" />,
           color: "bg-gray-200 text-gray-900",
         };
       case "Chuva Leve":
         return {
-          text: "Chuva Leve",
           icon: <Droplet className="h-4 w-4 text-blue-500" />,
           color: "bg-blue-100 text-blue-800",
         };
       default:
         return {
-          text: condition,
           icon: <Cloud className="h-4 w-4 text-gray-500" />,
           color: "bg-gray-50 text-gray-700",
         };
@@ -70,65 +75,69 @@ export const WeatherLogsTable: React.FC<{ logs: WeatherLog[] }> = ({
         </p>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Cidade
-              </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Data/Hora
-              </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Temp. (°C)
-              </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Umidade (%)
-              </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Condição
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {paginatedLogs.map((log) => {
-              const condition = getConditionDisplay(log.condition);
-              return (
-                <tr key={log._id}>
-                  <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
-                    {log.city}
-                  </td>
-                  <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
-                    {new Date(log.timestamp).toLocaleDateString("pt-BR")}
-                    <span className="block text-xs text-gray-500">
-                      {new Date(log.timestamp).toLocaleTimeString("pt-BR")}
-                    </span>
-                  </td>
+      <div className="rounded-md border-t overflow-hidden w-full ">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="min-w-[150px]">Cidade</TableHead>
+              <TableHead className="min-w-[150px]">Data/Hora</TableHead>
+              <TableHead className="min-w-[120px]">Temp. (°C)</TableHead>
+              <TableHead className="min-w-[120px]">Umidade (%)</TableHead>
+              <TableHead className="min-w-[120px]">Condição</TableHead>
+            </TableRow>
+          </TableHeader>
 
-                  <td className="px-4 py-3 text-sm font-medium text-indigo-600">
-                    {log.temperature.toFixed(1)}
-                  </td>
+          <TableBody>
+            {paginatedLogs.length === 0 ? (
+              <TableRow>
+                <TableCell
+                  colSpan={5}
+                  className="h-24 text-center text-muted-foreground"
+                >
+                  Nenhum registro encontrado.
+                </TableCell>
+              </TableRow>
+            ) : (
+              paginatedLogs.map((log) => {
+                const cond = getConditionDisplay(log.condition);
 
-                  <td className="px-4 py-3 text-sm text-gray-500">
-                    {log.humidity}%
-                  </td>
+                return (
+                  <TableRow key={log._id}>
+                    <TableCell className="font-medium whitespace-nowrap">
+                      {log.city}
+                    </TableCell>
 
-                  <td className="px-4 py-3 whitespace-nowrap">
-                    <span
-                      className={`inline-flex items-center text-xs font-semibold px-2 py-1 rounded-full ${condition.color}`}
-                    >
-                      {condition.icon}
-                    </span>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+                    <TableCell className="whitespace-nowrap">
+                      {new Date(log.timestamp).toLocaleDateString("pt-BR")}
+                      <span className="block text-xs text-gray-500">
+                        {new Date(log.timestamp).toLocaleTimeString("pt-BR")}
+                      </span>
+                    </TableCell>
+
+                    <TableCell className="text-indigo-600 font-semibold">
+                      {log.temperature.toFixed(1)}
+                    </TableCell>
+
+                    <TableCell className="text-gray-500">
+                      {log.humidity}%
+                    </TableCell>
+
+                    <TableCell className="whitespace-nowrap">
+                      <span
+                        className={`inline-flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-full ${cond.color}`}
+                      >
+                        {cond.icon}
+                        {log.condition}
+                      </span>
+                    </TableCell>
+                  </TableRow>
+                );
+              })
+            )}
+          </TableBody>
+        </Table>
       </div>
 
-      {/* PAGINATION */}
       <Pagination
         currentPage={currentPage}
         totalPages={totalPages}

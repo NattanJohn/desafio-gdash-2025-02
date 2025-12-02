@@ -7,7 +7,7 @@ type UsersTemplateProps = {
 
 export const UsersTemplate = ({ children, onCreate }: UsersTemplateProps ) => {
   return (
-    <main className="grow p-4 md:p-8 w-full">
+    <main className="grow p-4 md:p-8 w-full dark:bg-neutral-900">
       <div
         className="
           mb-8 flex flex-col gap-4 
