@@ -67,8 +67,6 @@ const UsersPage = () => {
   const handleDelete = async (id: string): Promise<void> => {
     if (!token) return;
 
-    if (!confirm("Tem certeza que deseja excluir este usuário?")) return;
-
     try {
       await UsersService.delete(id, token);
       toast.success("Usuário removido.");

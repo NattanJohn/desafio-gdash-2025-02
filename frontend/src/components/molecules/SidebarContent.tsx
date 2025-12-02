@@ -26,7 +26,8 @@ export function SidebarContent({ logout, isMobile = false, closeMenu }: Props) {
       "p-3 rounded-lg font-medium transition-colors",
     ].join(" ");
 
-    if (isActive) return `${base} bg-indigo-50 dark:bg-indigo-900 dark:text-white text-indigo-700 font-bold`;
+    if (isActive)
+      return `${base} bg-indigo-50 dark:bg-indigo-900 dark:text-white text-indigo-700 font-bold`;
     return `${base} text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-neutral-800`;
   };
 
@@ -38,8 +39,8 @@ export function SidebarContent({ logout, isMobile = false, closeMenu }: Props) {
   return (
     <div className={`flex flex-col h-full ${isMobile ? "p-4" : "p-0"}`}>
       <div
-        className={`flex items-center justify-center transition-all duration-300 mb-6 ${
-          effectiveCollapsed ? "h-12" : "h-20"
+        className={`flex flex-col items-center justify-center transition-all duration-300 mb-6 ${
+          effectiveCollapsed ? "h-20" : "h-28"
         }`}
       >
         <h2
@@ -49,6 +50,15 @@ export function SidebarContent({ logout, isMobile = false, closeMenu }: Props) {
         >
           GDash
         </h2>
+
+        <div
+          className={`
+            mt-3 transition-all
+            ${effectiveCollapsed ? "scale-90" : "scale-100"}
+          `}
+        >
+          <ThemeToggle />
+        </div>
       </div>
 
       <nav className="grow space-y-2">
@@ -97,7 +107,6 @@ export function SidebarContent({ logout, isMobile = false, closeMenu }: Props) {
           <LogOut className="h-5 w-5" />
           <span className={textClass}>Sair</span>
         </Link>
-        <ThemeToggle  />
       </div>
     </div>
   );

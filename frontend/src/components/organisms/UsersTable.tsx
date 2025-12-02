@@ -48,7 +48,7 @@ export const UsersTable = ({ users, onEdit, onDelete }: UsersTableProps) => {
           <TableRow>
             <TableHead className="min-w-[150px]">E-mail</TableHead>
             <TableHead className="min-w-[120px]">Permissão</TableHead>
-            <TableHead className="w-[100px] min-w-[100px]">ID</TableHead>
+            <TableHead className="min-w-[100px]">ID</TableHead>
             <TableHead className="text-right w-[120px] min-w-[120px]">
               Ações
             </TableHead>
