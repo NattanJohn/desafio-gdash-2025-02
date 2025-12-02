@@ -1,11 +1,21 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Transform } from 'stream'; // Importação para usar Streams
+import { Transform } from 'stream';
 import { WeatherLog, WeatherLogDocument } from './schemas/weather-logs.schema';
 import { CreateWeatherLogDto } from './dto/create-weather-log.dto';
 import { UpdateWeatherLogDto } from './dto/update-weather-log.dto';
 import { Parser } from 'json2csv';
+import * as ExcelJS from 'exceljs';
+
+interface WeatherLogLean {
+  _id: string;
+  timestamp: Date | string | null;
+  city: string;
+  country: string;
+  temperature: number | null;
+  humidity: number | null;
+}
 
 @Injectable()
 export class WeatherLogsService {
@@ -69,35 +79,51 @@ export class WeatherLogsService {
     return { message: 'Registro excluído com sucesso.' };
   }
 
-  /**
-   * Exporta todos os logs para CSV utilizando Streams.
-   * @returns Transform Um fluxo de dados (Stream) contendo o CSV.
-   */
-
   exportToCsvStream(): Transform {
-    const logsCursor = this.weatherLogModel.find().lean().cursor();
+    const logsCursor = this.weatherLogModel
+      .find()
+      .sort({ timestamp: -1 })
+      .lean()
+      .cursor();
 
     const fields = [
+      { label: 'Data e Hora', value: 'formattedDate' },
+      { label: 'Cidade', value: 'city' },
+      { label: 'País', value: 'country' },
+      { label: 'Temp (°C)', value: 'temperature' },
+      { label: 'Umidade (%)', value: 'humidity' },
       { label: 'ID', value: '_id' },
-      'city',
-      'country',
-      'temperature',
-      'humidity',
-      { label: 'Data/Hora', value: 'timestamp' },
     ];
 
     let isFirstChunk = true;
 
     const csvStream = new Transform({
       writableObjectMode: true,
-      transform(
-        chunk: Record<string, any>,
-        encoding: BufferEncoding,
-        callback: (error?: Error | null) => void,
-      ) {
+
+      transform(chunk: WeatherLogLean, encoding, callback) {
         try {
-          const json2csv = new Parser({ fields, header: isFirstChunk });
-          const csvLine = json2csv.parse([chunk]);
+          const formattedChunk: Record<string, unknown> = {
+            ...chunk,
+            formattedDate: chunk.timestamp
+              ? new Date(chunk.timestamp).toLocaleString('pt-BR')
+              : 'N/A',
+            temperature:
+              chunk.temperature !== null
+                ? String(chunk.temperature).replace('.', ',')
+                : '',
+          };
+
+          const json2csv = new Parser({
+            fields,
+            header: isFirstChunk,
+            delimiter: ';',
+          });
+
+          const csvLine = json2csv.parse([formattedChunk]);
+
+          if (isFirstChunk) {
+            this.push('\ufeff');
+          }
 
           this.push(
             (isFirstChunk
@@ -116,16 +142,75 @@ export class WeatherLogsService {
     return logsCursor.pipe(csvStream);
   }
 
-  /**
-   * Exporta todos os logs para XLSX (Placeholder que retorna JSON).
-   * @returns Promise<any[]> Retorna o array de logs.
-   */
-  async exportToXlsx(): Promise<any[]> {
-    const logs = await this.weatherLogModel.find().lean().exec();
+  async exportToXlsx(): Promise<Buffer> {
+    const logs = await this.weatherLogModel
+      .find()
+      .sort({ timestamp: -1 })
+      .lean()
+      .exec();
 
     if (!logs || logs.length === 0) {
-      throw new NotFoundException('Não há registros de clima para exportar.');
+      throw new NotFoundException('Não há registros para exportar.');
     }
-    return logs;
+
+    const workbook = new ExcelJS.Workbook();
+    const sheet = workbook.addWorksheet('Dados Climáticos');
+
+    sheet.columns = [
+      { header: 'Data/Hora', key: 'timestamp', width: 25 },
+      { header: 'Cidade', key: 'city', width: 20 },
+      { header: 'País', key: 'country', width: 15 },
+      { header: 'Temperatura (°C)', key: 'temperature', width: 18 },
+      { header: 'Umidade (%)', key: 'humidity', width: 15 },
+      { header: 'ID do Registro', key: '_id', width: 30 },
+    ];
+
+    const headerRow = sheet.getRow(1);
+    headerRow.font = { bold: true, color: { argb: 'FFFFFFFF' }, size: 12 };
+    headerRow.fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'FF4F46E5' },
+    };
+    headerRow.alignment = { vertical: 'middle', horizontal: 'center' };
+    headerRow.height = 30;
+
+    logs.forEach((log) => {
+      const row = sheet.addRow({
+        timestamp: log.timestamp ? new Date(log.timestamp) : null,
+        city: log.city,
+        country: log.country,
+        temperature: log.temperature,
+        humidity: log.humidity / 100,
+        _id: log._id.toString(),
+      });
+
+      row.getCell('timestamp').numFmt = 'dd/mm/yyyy hh:mm:ss';
+      row.getCell('humidity').numFmt = '0%';
+
+      row.eachCell({ includeEmpty: false }, (cell) => {
+        cell.border = {
+          top: { style: 'thin', color: { argb: 'FFE5E7EB' } },
+          left: { style: 'thin', color: { argb: 'FFE5E7EB' } },
+          bottom: { style: 'thin', color: { argb: 'FFE5E7EB' } },
+          right: { style: 'thin', color: { argb: 'FFE5E7EB' } },
+        };
+        cell.alignment = { vertical: 'middle', horizontal: 'center' };
+      });
+
+      if (log.temperature > 30) {
+        row.getCell('temperature').font = {
+          color: { argb: 'FFFF0000' },
+          bold: true,
+        };
+        row.getCell('temperature').fill = {
+          type: 'pattern',
+          pattern: 'lightDown',
+          fgColor: { argb: 'FFFFCCCC' },
+        };
+      }
+    });
+
+    return (await workbook.xlsx.writeBuffer()) as unknown as Buffer;
   }
 }

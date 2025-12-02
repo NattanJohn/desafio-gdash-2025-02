@@ -57,9 +57,9 @@ export class WeatherLogsController {
     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
   )
   @Header('Content-Disposition', 'attachment; filename="weather-logs.xlsx"')
-  async exportXlsx(): Promise<any> {
-    const logs = await this.weatherLogsService.exportToXlsx();
-    return logs;
+  async exportXlsx(): Promise<StreamableFile> {
+    const buffer = await this.weatherLogsService.exportToXlsx();
+    return new StreamableFile(buffer);
   }
 
   @UseGuards(AuthGuard('jwt'))
