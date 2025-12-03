@@ -1,7 +1,8 @@
 import type { InsightData, WeatherLog } from "@/types/weather";
 import { UsersService } from "./users";
 
-const API_BASE_URL = "http://localhost:3000";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 
 function createAbortController(timeout = 10000) {
   const controller = new AbortController();

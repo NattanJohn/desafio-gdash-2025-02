@@ -1,6 +1,7 @@
 import React, { type ReactNode } from "react";
 import { Cloud } from "lucide-react";
 import { ThemeToggle } from "../molecules/ThemeToggle";
+import { Link } from "react-router-dom";
 
 interface AuthTemplateProps {
   title: string;
@@ -49,12 +50,12 @@ export const AuthTemplate: React.FC<AuthTemplateProps> = ({
             {showRegisterLink && (
               <div className="mt-8 text-center text-sm text-gray-500 dark:text-gray-400 pt-6 border-t border-gray-100 dark:border-gray-700">
                 Não tem uma conta?
-                <a
-                  href="#"
+                <Link
+                  to="/register"
                   className="font-semibold leading-6 text-indigo-600 hover:text-white dark:text-indigo-400 dark:hover:text-white ml-1 transition-colors"
                 >
                   Crie uma aqui
-                </a>
+                </Link>
               </div>
             )}
           </div>

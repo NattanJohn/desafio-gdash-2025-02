@@ -2,12 +2,8 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
-  // Cria a instância da aplicação Nest
   const app = await NestFactory.create(AppModule);
 
-  // ----------------------------------------------------
-  // ⭐️ Adicionar a configuração CORS aqui ⭐️
-  // ----------------------------------------------------
   app.enableCors({
     origin: 'http://localhost:5173',
     // Define quais métodos HTTP são permitidos

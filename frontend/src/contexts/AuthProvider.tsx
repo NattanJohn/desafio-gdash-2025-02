@@ -5,10 +5,11 @@ import { AuthContext } from "./AuthContext";
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(() => localStorage.getItem("token"));
   const isAuthenticated = !!token;
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   async function login(email: string, password: string) {
     try {
-      const res = await fetch("http://localhost:3000/auth/login", {
+      const res = await fetch(`${API_BASE_URL}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),

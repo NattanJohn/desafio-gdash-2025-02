@@ -23,7 +23,7 @@ export const UsersService = {
   },
 
   create(data: UserFormData, token: string) {
-    return apiRequest<User>("/users", "POST", token, data);
+    return apiRequest<User>("/users", "POST", token ?? undefined, data);
   },
 
   update(id: string, data: UserFormData, token: string) {

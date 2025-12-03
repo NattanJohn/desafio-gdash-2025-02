@@ -1,5 +1,3 @@
-export const API_BASE_URL = "http://localhost:3000";
-
 export interface WeatherLog {
     _id: string;
     city: string;

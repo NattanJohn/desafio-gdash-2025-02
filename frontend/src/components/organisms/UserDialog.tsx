@@ -30,7 +30,6 @@ import { Button } from "@/components/atoms/button";
 import { Loader2 } from "lucide-react";
 import type { UserFormData } from "@/services/users";
 
-// Schema de validação com Zod
 const formSchema = z.object({
   email: z.string().email("E-mail inválido"),
   role: z.enum(["user", "admin"]),

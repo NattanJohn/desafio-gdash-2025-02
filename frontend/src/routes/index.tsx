@@ -4,12 +4,14 @@ import Dashboard from "@/pages/DashboardPage";
 import ExplorePage from "@/pages/ExplorePage";
 import UsersPage from "@/pages/UserPage";
 import { LoginPage } from "@/pages/LoginPage";
+import RegisterPage from "@/pages/RegisterPage";
 
 
 export function AppRoutes() {
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/register" element={<RegisterPage />} />
 
       <Route
         path="/"
