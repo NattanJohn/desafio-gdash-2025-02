@@ -1,7 +1,6 @@
-// src/pages/UsersPage.tsx
 import { useEffect, useState } from "react";
 import { Sidebar } from "../components/organisms/Sidebar";
-import { UsersTable } from "../components/organisms/UsersTable";
+import { UsersList } from "../components/organisms/UsersTable";
 import { UserDialog } from "../components/organisms/UserDialog";
 import { UsersTemplate } from "../components/templates/UsersTemplate";
 import { UsersService, type User, type UserFormData } from "../services/users";
@@ -40,11 +39,9 @@ const UsersPage = () => {
 
     try {
       if (editingUser) {
-        // update
         await UsersService.update(editingUser._id, data, token);
         toast.success("Usuário atualizado com sucesso!");
       } else {
-        // create
         await UsersService.create(data, token);
         toast.success("Usuário criado com sucesso!");
       }
@@ -103,7 +100,7 @@ const UsersPage = () => {
         `}
       >
         <UsersTemplate onCreate={handleOpenCreate}>
-          <UsersTable
+          <UsersList
             users={users}
             onEdit={handleOpenEdit}
             onDelete={handleDelete}

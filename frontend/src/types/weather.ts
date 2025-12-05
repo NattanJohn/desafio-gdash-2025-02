@@ -14,14 +14,16 @@ export interface Metrics {
 }
 
 export interface InsightData {
-    period: string;
-    totalRecords: number;
-    metrics: Metrics;
-    analysis: string;
-    suggestedAction: string;
-    latestTemperature: number;
-    latestHumidity: number;
-    trend: 'Estável' | 'Subindo' | 'Caindo';
-    comfortScore: number;
-    classification: string;
+  period: string;
+  totalRecords: number;
+  metrics: Metrics;
+  analysis: string;
+  suggestedAction: string;
+  latestTemperature: number;
+  latestHumidity: number;
+  trend: string; 
+  comfortScore: number;
+  classification: string;
+  rainProbability: number;
+  weatherCode: number;
 }

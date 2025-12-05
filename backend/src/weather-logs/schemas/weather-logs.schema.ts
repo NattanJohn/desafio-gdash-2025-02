@@ -17,6 +17,12 @@ export class WeatherLog {
   @Prop({ required: true })
   humidity: number;
 
+  @Prop({ default: 0 })
+  rainProbability: number;
+
+  @Prop({ default: 0 })
+  weatherCode: number;
+
   @Prop({ required: true, default: Date.now, index: true })
   timestamp: Date;
 }

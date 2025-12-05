@@ -18,6 +18,7 @@ import { useWeatherDashboard } from "@/hooks/useWeatherDashboard";
 import { useAuth } from "@/contexts/useAuth";
 import { TemperatureChart } from "@/components/molecules/TemperatureChart";
 import { useSidebar } from "@/contexts/SidebarContext";
+import ForecastAlertCard from "@/components/organisms/ForecastAlertCard";
 
 export default function Dashboardpage() {
   const { logout } = useAuth();
@@ -155,7 +156,7 @@ export default function Dashboardpage() {
             color="text-indigo-500"
           />
         </div>
-
+        <ForecastAlertCard data={insights} />
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <InsightCard data={insights} />
           <WeatherLogsTable logs={logs} />

@@ -1,12 +1,4 @@
-import { useState, useMemo } from "react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/atoms/table";
+import { useState, useMemo} from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,132 +11,222 @@ import {
   AlertDialogTrigger,
 } from "@/components/atoms/alert-dialog";
 import { Button } from "@/components/atoms/button";
-import { Pencil, Trash2 } from "lucide-react";
-import { RoleBadge } from "@/components/molecules/RoleBadge";
+import { Input } from "@/components/atoms/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/atoms/select";
+import { Badge } from "@/components/atoms/badge";
+import { Pencil, Trash2, Search, Filter } from "lucide-react";
 import type { User } from "@/services/users";
 import { Pagination } from "@/components/molecules/Pagination";
+import { Card, CardContent, CardFooter } from "@/components/atoms/card";
 
-interface UsersTableProps {
+interface UsersListProps {
   users: User[];
   onEdit: (user: User) => void;
   onDelete: (id: string) => void;
 }
 
-export const UsersTable = ({ users, onEdit, onDelete }: UsersTableProps) => {
-  const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 10;
+type UserRole = "all" | User["role"];
 
-  const totalPages = Math.ceil(users.length / pageSize);
+export const UsersList = ({ users, onEdit, onDelete }: UsersListProps) => {
+  const [currentPage, setCurrentPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedRole, setSelectedRole] = useState<UserRole>("all");
+  const pageSize = 8;
+
+  const filteredUsers = useMemo(() => {
+    return users.filter((user) => {
+      const matchesSearch = user.email
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase());
+      const matchesRole = selectedRole === "all" || user.role === selectedRole;
+      return matchesSearch && matchesRole;
+    });
+  }, [users, searchTerm, selectedRole]);
+
+  const totalPages = Math.ceil(filteredUsers.length / pageSize);
 
   const paginatedUsers = useMemo(() => {
     const start = (currentPage - 1) * pageSize;
-    return users.slice(start, start + pageSize);
-  }, [currentPage, users]);
+    return filteredUsers.slice(start, start + pageSize);
+  }, [currentPage, filteredUsers]);
+
+  const roleColors: Record<User["role"], string> = {
+    admin: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
+    user: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
+  };
+
+  const roleLabels: Record<User["role"], string> = {
+    admin: "Administrador",
+    user: "Usuário",
+  };
 
   return (
-    <div className="rounded-md border overflow-x-auto w-full dark:black dark:border-gray-700">
-      <Table className="min-w-max">
-        <TableHeader>
-          <TableRow>
-            <TableHead className="min-w-[150px]">E-mail</TableHead>
-            <TableHead className="min-w-[120px]">Permissão</TableHead>
-            <TableHead className="min-w-[100px]">ID</TableHead>
-            <TableHead className="text-right w-[120px] min-w-[120px]">
-              Ações
-            </TableHead>
-          </TableRow>
-        </TableHeader>
+    <div className="w-full space-y-6">
+      <div className="flex flex-col md:flex-row gap-4">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Buscar por e-mail..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+        
+        <div className="flex items-center gap-2">
+          <Filter className="h-4 w-4 text-muted-foreground" />
+          <Select value={selectedRole} onValueChange={(value: UserRole) => setSelectedRole(value)}>
+            <SelectTrigger className="w-full md:w-[180px]">
+              <SelectValue placeholder="Filtrar por permissão" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todas as permissões</SelectItem>
+              <SelectItem value="admin">Administrador</SelectItem>
+              <SelectItem value="user">Usuário</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
 
-        <TableBody>
-          {paginatedUsers.length === 0 ? (
-            <TableRow>
-              <TableCell
-                colSpan={4}
-                className="h-24 text-center text-muted-foreground"
-              >
-                Nenhum usuário encontrado.
-              </TableCell>
-            </TableRow>
+      <div className="text-sm text-muted-foreground">
+        {filteredUsers.length === 0 ? (
+          searchTerm || selectedRole !== "all" ? (
+            "Nenhum usuário encontrado com os filtros atuais."
           ) : (
-            paginatedUsers.map((user) => (
-              <TableRow key={user._id}>
-                <TableCell className="font-medium whitespace-nowrap">
-                  {user.email}
-                </TableCell>
+            "Nenhum usuário cadastrado."
+          )
+        ) : (
+          `Mostrando ${paginatedUsers.length} de ${filteredUsers.length} usuário(s)`
+        )}
+      </div>
 
-                <TableCell className="whitespace-nowrap">
-                  <RoleBadge role={user.role} />
-                </TableCell>
+      {paginatedUsers.length === 0 ? (
+        <Card className="text-center py-12 border-dashed">
+          <CardContent>
+            <div className="text-muted-foreground">
+              {searchTerm || selectedRole !== "all" ? (
+                <>
+                  <p className="mb-2">Nenhum usuário encontrado</p>
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setSearchTerm("");
+                      setSelectedRole("all");
+                    }}
+                  >
+                    Limpar filtros
+                  </Button>
+                </>
+              ) : (
+                <p>Nenhum usuário cadastrado no sistema</p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      ) : (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {paginatedUsers.map((user) => (
+              <Card key={user._id} className="overflow-hidden hover:shadow-lg transition-shadow">
+                <CardContent className="p-6">
+                  <div className="space-y-4">
+                    <div className="flex items-start justify-between">
+                      <div className="space-y-1">
+                        <h3 className="font-semibold text-lg truncate" title={user.email}>
+                          {user.email}
+                        </h3>
+                        <Badge 
+                          className={roleColors[user.role]}
+                          variant="secondary"
+                        >
+                          {roleLabels[user.role]}
+                        </Badge>
+                      </div>
+                    </div>
 
-                <TableCell className="font-mono text-xs text-muted-foreground whitespace-nowrap">
-                  {user._id ? `${user._id.substring(0, 8)}...` : "N/A"}
-                </TableCell>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex items-center justify-between">
+                        <span className="text-muted-foreground">ID:</span>
+                        <code className="font-mono bg-muted px-2 py-1 rounded text-xs">
+                          {user._id ? `${user._id.substring(0, 10)}...` : "N/A"}
+                        </code>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
 
-                <TableCell className="text-right whitespace-nowrap">
-                  <div className="flex justify-end gap-2">
+                <CardFooter className="bg-gray-50 dark:bg-gray-800 px-6 py-4 border-t">
+                  <div className="flex justify-end gap-2 w-full">
                     <Button
-                      variant="ghost"
-                      size="icon"
+                      variant="outline"
+                      size="sm"
                       onClick={() => onEdit(user)}
-                      title="Editar"
+                      className="flex-1"
                     >
-                      <Pencil className="h-4 w-4 text-primary" />
+                      <Pencil className="h-4 w-4 mr-2" />
+                      Editar
                     </Button>
-
+                    
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
                         <Button
-                          variant="ghost"
-                          size="icon"
-                          className="text-destructive hover:text-destructive"
-                          title="Excluir"
-                          disabled={!user._id}
+                          variant="outline"
+                          size="sm"
+                          className="flex-1 text-destructive border-destructive hover:bg-destructive/10"
                         >
-                          <Trash2 className="h-4 w-4" />
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          Excluir
                         </Button>
                       </AlertDialogTrigger>
-
+                      
                       <AlertDialogContent>
                         <AlertDialogHeader>
                           <AlertDialogTitle>
-                            Tem certeza absoluta?
+                            Excluir usuário?
                           </AlertDialogTitle>
                           <AlertDialogDescription>
-                            Esta ação não pode ser desfeita. Isso excluirá
-                            permanentemente o usuário
-                            <span className="font-bold text-foreground">
-                              {" "}
+                            Esta ação não pode ser desfeita. O usuário{" "}
+                            <span className="font-semibold text-foreground">
                               {user.email}
-                            </span>
-                            .
+                            </span>{" "}
+                            será permanentemente removido do sistema.
                           </AlertDialogDescription>
                         </AlertDialogHeader>
-
+                        
                         <AlertDialogFooter>
                           <AlertDialogCancel>Cancelar</AlertDialogCancel>
                           <AlertDialogAction
                             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                             onClick={() => user._id && onDelete(user._id)}
                           >
-                            Sim, excluir
+                            Confirmar exclusão
                           </AlertDialogAction>
                         </AlertDialogFooter>
                       </AlertDialogContent>
                     </AlertDialog>
                   </div>
-                </TableCell>
-              </TableRow>
-            ))
-          )}
-        </TableBody>
-      </Table>
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
 
-      {users.length > 0 && (
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={setCurrentPage}
-        />
+          {/* Paginação */}
+          {filteredUsers.length > pageSize && (
+            <div className="mt-8">
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+              />
+            </div>
+          )}
+        </>
       )}
     </div>
   );

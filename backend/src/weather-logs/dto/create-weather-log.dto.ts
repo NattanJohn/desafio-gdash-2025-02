@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CreateWeatherLogDto {
   @IsString()
@@ -16,4 +16,15 @@ export class CreateWeatherLogDto {
   @IsNumber()
   @IsNotEmpty()
   readonly humidity: number;
+  // Novos campos para IA
+  @IsNumber()
+  @IsOptional()
+  readonly rainProbability?: number;
+
+  @IsNumber()
+  @IsOptional()
+  readonly weatherCode?: number;
+  @IsNumber()
+  @IsOptional()
+  readonly isDay?: number;
 }
