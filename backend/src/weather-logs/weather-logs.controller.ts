@@ -22,7 +22,6 @@ import { UpdateWeatherLogDto } from './dto/update-weather-log.dto';
 export class WeatherLogsController {
   constructor(private readonly weatherLogsService: WeatherLogsService) {}
 
-  @UseGuards(AuthGuard('jwt'))
   @Post()
   @HttpCode(HttpStatus.CREATED)
   async create(@Body() createWeatherLogDto: CreateWeatherLogDto) {

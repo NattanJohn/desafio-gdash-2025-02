@@ -11,7 +11,7 @@ import { ExternalApiModule } from './external-api/external-api.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: '../.env',
+      envFilePath: '.env',
     }),
 
     MongooseModule.forRootAsync({

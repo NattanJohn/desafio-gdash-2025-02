@@ -20,7 +20,9 @@ export class UsersModule implements OnModuleInit {
   ) {}
 
   async onModuleInit() {
-    const adminEmail = 'admin@example.com';
+    const adminEmail =
+      this.configService.get<string>('DEFAULT_ADMIN_EMAIL') ||
+      'admin@example.com';
     const adminPassword =
       this.configService.get<string>('DEFAULT_ADMIN_PASSWORD') || '123456';
 
