@@ -110,7 +110,7 @@ def job():
 if __name__ == "__main__":
     logger.info("🚀 Coletor Iniciado (Modo Preditivo)...")
     job() 
-    schedule.every(1).hour.do(job) 
+    schedule.every(1).minute.do(job) 
     while True:
         schedule.run_pending()
         time.sleep(1)
