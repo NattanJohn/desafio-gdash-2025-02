@@ -82,7 +82,7 @@ Siga os passos abaixo para subir toda a arquitetura:
 
 1.  Clone o repositório:
     
-        git clone [LINK_DO_SEU_REPOSITÓRIO]
+        git clone https://github.com/NattanJohn/desafio-gdash-2025-02.git
         cd [pasta-do-projeto]
         
     
