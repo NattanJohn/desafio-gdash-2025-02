@@ -1,4 +1,3 @@
-// components/molecules/LaunchCard.tsx
 import React from "react";
 import { Calendar, Rocket, Info } from "lucide-react";
 import { StatusBadge } from "../atoms/status-badge";

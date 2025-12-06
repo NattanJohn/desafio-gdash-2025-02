@@ -8,15 +8,7 @@ import { Pagination } from "@/components/molecules/Pagination";
 import { Button } from "@/components/atoms/button";
 import { useAuth } from "@/contexts/useAuth";
 import { useSidebar } from "@/contexts/SidebarContext";
-
-interface SpaceXApiResponse {
-  docs: SpaceXLaunch[];
-  totalDocs: number;
-  totalPages: number;
-  page: number;
-  hasNextPage: boolean;
-  hasPrevPage: boolean;
-}
+import type { SpaceXApiResponse } from "@/types/spacex";
 
 export default function ExplorePage() {
   const { token, logout } = useAuth();

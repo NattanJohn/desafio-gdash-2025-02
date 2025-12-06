@@ -1,5 +1,6 @@
 import type { InsightData, WeatherLog } from "@/types/weather";
 import { UsersService } from "./users";
+import type { SpaceXApiResponse } from "@/types/spacex";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -111,8 +112,8 @@ export const SpaceXService = {
     token: string,
     page: number = 1,
     limit: number = 10
-  ) {
-    return apiRequest(
+  ): Promise<SpaceXApiResponse> {
+    return apiRequest<SpaceXApiResponse>(
       `/spacex/launches?page=${page}&limit=${limit}`,
       "GET",
       token

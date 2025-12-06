@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   # 🍃 Banco de Dados
   mongodb:
@@ -20,8 +22,8 @@ services:
     container_name: gdash_rabbitmq
     restart: always
     ports:
-      - "5672:5672"   # Porta padrão do protocolo AMQP
-      - "15672:15672" # Porta do painel de gerenciamento (Interface Web)
+      - "5672:5672"
+      - "15672:15672"
     environment:
       - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
       - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASS}
@@ -30,12 +32,76 @@ services:
     networks:
       - gdash_net
 
-# Definição dos volumes (persistência de dados)
+  # 📡 Coletor (Python)
+  weather_collector:
+    build:
+      context: ./weather-collector
+      dockerfile: Dockerfile
+    container_name: gdash_weather_collector
+    restart: always
+    depends_on:
+      - rabbitmq
+    environment:
+      RABBITMQ_HOST: gdash_rabbitmq
+      RABBITMQ_USER: ${RABBITMQ_USER}
+      RABBITMQ_PASS: ${RABBITMQ_PASS}
+    networks:
+      - gdash_net
+
+  # ⚙️ Backend (NestJS)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: gdash_backend
+    restart: always
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mongodb
+      - rabbitmq
+    environment:
+      MONGO_HOST: gdash_mongo
+      RABBITMQ_HOST: gdash_rabbitmq
+    networks:
+      - gdash_net
+
+  # 👷 Worker Go
+  weather_worker:
+    build:
+      context: ./weather-worker
+      dockerfile: Dockerfile
+    container_name: gdash_weather_worker
+    restart: always
+    depends_on:
+      - rabbitmq
+      - backend
+    environment:
+      RABBITMQ_HOST: gdash_rabbitmq
+      NESTJS_HOST: gdash_backend
+    networks:
+      - gdash_net
+
+  # 🖥️ Frontend (Vite/React)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: gdash_frontend
+    restart: always
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+    networks:
+      - gdash_net
+
+# 🔐 Volumes persistentes
 volumes:
   mongo_data:
   rabbitmq_data:
 
-# Definição da rede (para os containers se enxergarem)
+# 🌐 Rede Docker
 networks:
   gdash_net:
     driver: bridge
