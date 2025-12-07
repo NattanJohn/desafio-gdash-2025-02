@@ -55,7 +55,7 @@ Para o ambiente de desenvolvimento local (Docker Compose), o projeto exige arqui
 
 **Passo 1: Arquivo de Exemplo**
 
-O arquivo **`.env.example`** na raiz do projeto contém todas as variáveis necessárias e deve ser consultado como gabarito.
+Os arquivos **`.env.example`** já estão em suas respectivas pastas do projeto e contém todas as variáveis necessárias e devem ser consultado como gabarito.
 
 **Passo 2: Criação dos Arquivos `.env`**
 
@@ -63,18 +63,13 @@ Você **deve** criar um arquivo `.env` em cada um dos seguintes diretórios, cop
 
 | Pasta | Arquivo Criado | Variáveis Chave Necessárias (Exemplo) |
 | --- | --- | --- |
-| **Raiz** | `/.env` | `MONGO_USER`, `MONGO_PASS`, `RABBITMQ_USER`, `RABBITMQ_PASS` |
-| **`backend/`** | `backend/.env` | `MONGO_URI`, `RABBITMQ_URI`, `JWT_SECRET`, `DEFAULT_USER_EMAIL`, `DEFAULT_USER_PASS` |
+| **Raiz** | `/.env` | `MONGO_USER`, `MONGO_PASS`, `MONGO_PORT`, `MONGO_HOST`, `RABBITMQ_USER`, `RABBITMQ_PASS`, `RABBITMQ_HOST`,`RABBITMQ_PORT` |
+| **`backend/`** | `backend/.env` | `MONGO_PORT`, `MONGO_HOST`, `RABBITMQ_USER`, `RABBITMQ_PASS`, `RABBITMQ_HOST`, `RABBITMQ_PORT`, `DEFAULT_ADMIN_EMAIL`, `DEFAULT_ADMIN_EMAIL`, `JWT_SECRET`|
 | **`frontend/`** | `frontend/.env` | `VITE_API_BASE_URL` |
-| **`weather-worker/`** | `weather-worker/.env` | `RABBITMQ_URI`, `NESTJS_INTERNAL_URL` |
-| **`weather-collector/`** | `weather-collector/.env` | `RABBITMQ_URI`, `WEATHER_API_KEY`, `WEATHER_LAT`, `WEATHER_LON`, `NESTJS_INTERNAL_URL` |
+| **`weather-worker/`** | `weather-worker/.env` | `NESTJS_HOST`, `NESTJS_PORT`, `RABBITMQ_USER`, `RABBITMQ_PASS`, `RABBITMQ_HOST`, `RABBITMQ_PORT` |
 
 > **IMPORTANTE:** Para o ambiente Docker Compose, use os nomes dos serviços como hosts:
-> 
-> -   **`MONGO_URI`** e **`RABBITMQ_URI`**: Devem apontar para `mongodb://mongo:...` e `amqp://rabbitmq:...` respectivamente.
->     
-> -   **`NESTJS_INTERNAL_URL`**: Deve ser `http://backend:3000` (o nome do serviço Docker).
->     
+>  
 
 ### 3\. Execução
 
@@ -117,6 +112,7 @@ A aplicação possui um sistema de autenticação JWT e um usuário padrão é c
 | --- | --- |
 | E-mail | `admin@email.com` |
 | Senha | `123456` |
+> Email e Senha podem ser alterados no .env do backend
 
 ## 📋 Escopo Funcional Implementado
 
@@ -145,7 +141,7 @@ A aplicação possui um sistema de autenticação JWT e um usuário padrão é c
 
 ### 🚀 Integração Opcional (SpaceX API)
 
--   **Página `/explore`:** Consome a API pública da SpaceX (Launches) através de um endpoint no backend (NestJS), garantindo paginação, conforme solicitado.
+-   **Página `/external-api`:** Consome a API pública da SpaceX (Launches) através de um endpoint no backend (NestJS), garantindo paginação, conforme solicitado.
     
 
 ## ✅ Checklist de Entrega
